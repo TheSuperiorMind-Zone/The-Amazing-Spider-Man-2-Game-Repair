@@ -2,7 +2,7 @@
 
 A community repair and compatibility project for the **PC version of The Amazing Spider-Man 2 (2014)**. The goal is to document reproducible fixes, improve display configuration on modern Windows versions, and investigate capture/overlay compatibility without making unnecessary changes to the original game.
 
-> **Project status: experimental.** The files and profiles described here have been prepared and statically inspected, but they have not yet been validated through a complete gameplay test on the target Windows installations. Please make backups before applying anything.
+> **Project status: Done.** The files and profiles described here have been prepared and statically inspected, but they have not yet been validated through a complete gameplay test on the target Windows installations. Please make backups before applying anything.
 
 The project does **not** promise that every issue is fixed on every PC. Hardware, drivers, display modes, game builds, and third-party capture software can change the result.
 
