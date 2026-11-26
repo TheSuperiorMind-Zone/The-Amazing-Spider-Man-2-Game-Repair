@@ -28,7 +28,7 @@
 - [ ] The limit is shared across all seven assets.
 - [ ] Another IP has an independent quota.
 - [ ] After the oldest accepted start leaves the window, a new download is accepted.
-- [ ] A browser session retry does not consume a second download slot.
+- [ ] Reusing a consumed signed link is rejected with HTTP 409, including after the first transfer completes or disconnects.
 - [ ] Direct private Blob URL access is rejected.
 - [ ] No private storage tokens or HMAC secrets are exposed to the browser.
 
