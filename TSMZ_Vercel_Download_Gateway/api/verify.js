@@ -1,5 +1,5 @@
 import {
-  ASSET_MAP, clientIp, hashIp, proofIsValid, randomId, redis,
+  ASSET_MAP, clientIp, hashIp, proofIsValid, randomId,
   sendError, sendJson, signDownload, takeSlidingLimit, parseStoredJson, consumeRedisValue
 } from "../lib/security.js";
 
