@@ -42,14 +42,23 @@ export default async function handler(req, res) {
     if (!asset) return sendError(res, 404, "File not found.");
 
     const ipHash = hashIp(clientIp(req));
-    const cookie = parseCookies(req).tsmz_dl;
+    const token = readDownloadToken(String(req.query.token || ""));
+    if (!token || token.assetId !== assetId || token.ipHash !== ipHash) {
+      return sendError(res, 403, "Download link is not valid for this file or connection. Verify again.");
+    }
+
+    // The cookie name is derived from the signed token nonce. A previous session
+    // cannot be reused to bypass the quota for a newly issued download link.
+    const cookieName = "tsmz_dl_" + token.nonce;
+    const cookie = parseCookies(req)[cookieName];
     let session = null;
     if (cookie && /^[A-Za-z0-9_-]{32,80}$/.test(cookie)) {
       session = parseStoredJson(await redis().get("download:session:" + cookie));
     }
 
     if (session) {
-      if (session.assetId !== assetId || session.ipHash !== ipHash || session.exp < Date.now()) {
+      if (session.assetId !== assetId || session.ipHash !== ipHash ||
+          session.nonce !== token.nonce || session.exp < Date.now()) {
         return sendError(res, 403, "Download session is not valid for this file or connection.");
       }
       const count = Number(await redis().incr("download:session-requests:" + cookie));
@@ -60,10 +69,8 @@ export default async function handler(req, res) {
         : sendError(res, 404, "The private file is not available.");
     }
 
-    const token = readDownloadToken(String(req.query.token || ""));
-    if (!token || token.assetId !== assetId || token.ipHash !== ipHash ||
-        token.exp < Date.now() || token.exp > Date.now() + 120_000 + 5_000) {
-      return sendError(res, 403, "Download link expired or not valid for this connection. Verify again.");
+    if (token.exp < Date.now() || token.exp > Date.now() + 120_000 + 5_000) {
+      return sendError(res, 403, "Download link expired. Verify again.");
     }
 
     // Resolve the private object before consuming a quota slot.
@@ -76,6 +83,7 @@ export default async function handler(req, res) {
     const sessionValue = {
       assetId,
       ipHash,
+      nonce: token.nonce,
       exp: Date.now() + SESSION_TTL_SECONDS * 1000
     };
     const redeemed = await redeemDownloadSlot({
@@ -92,7 +100,7 @@ export default async function handler(req, res) {
     }
 
     res.setHeader("Set-Cookie",
-      "tsmz_dl=" + sessionId + "; Max-Age=" + SESSION_TTL_SECONDS +
+      cookieName + "=" + sessionId + "; Max-Age=" + SESSION_TTL_SECONDS +
       "; Path=/api/file; HttpOnly; Secure; SameSite=Lax");
     return streamPrivateBlob(res, asset, blob)
       ? undefined
