@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>TSMZ Protected Downloads</title>
+  <style>
+    :root{color-scheme:dark}*{box-sizing:border-box}
+    body{margin:0;min-height:100vh;padding:24px;background:#090f1c;color:#eef3fb;font:16px system-ui,Segoe UI,Arial}
+    main{width:min(760px,100%);margin:5vh auto;padding:28px;background:#111c2e;border:1px solid #293b58;border-radius:16px}
+    h1{font-size:28px;margin-top:0}p{line-height:1.55;color:#bdcbe0}
+    .asset{margin:14px 0;padding:16px;border:1px solid #2b405f;border-radius:10px;background:#0b1525}
+    .button{display:inline-block;padding:11px 16px;border:0;border-radius:8px;background:#c82035;color:white;font-weight:700;cursor:pointer}
+    .button:disabled{opacity:.55;cursor:wait}.muted{font-size:13px;color:#92a6c2}
+    #status{min-height:24px;margin:12px 0;color:#d8e2f0}.footer{margin-top:24px;padding-top:15px;border-top:1px solid #2a3b55;color:#91a3bd;font-size:12px}
+  </style>
+</head>
+<body>
+<main>
+  <h1>TSMZ Protected Downloads</h1>
+  <p>Choose a file and complete the browser security check before downloading.</p>
+  <section id="files"><p class="muted">Loading files…</p></section>
+  <p id="status" role="status" aria-live="polite"></p>
+  <p class="muted">Limit: three accepted download starts per IP in any rolling 20-second window. This lightweight proof-of-work challenge is not a human CAPTCHA; automated clients may still solve it.</p>
+  <div class="footer">© Copyright by The Superior Mind-Zone · TSMZ Download Protection</div>
+</main>
+<script>
+(async()=>{
+ const filesBox=document.getElementById('files');
+ const status=document.getElementById('status');
+ const encoder=new TextEncoder();
+ const wait=()=>new Promise(resolve=>setTimeout(resolve,0));
+ const setStatus=(value)=>{status.textContent=value;};
+ const digestHasZeroBits=(bytes,bits)=>{
+   const whole=Math.floor(bits/8),remaining=bits%8;
+   for(let i=0;i<whole;i++)if(bytes[i]!==0)return false;
+   return !remaining||(bytes[whole]>>(8-remaining))===0;
+ };
+ async function verifyAndDownload(assetId,button){
+   button.disabled=true;setStatus('Preparing verification…');
+   try{
+     if(!globalThis.crypto?.subtle)throw new Error('Secure browser crypto is unavailable. Open this HTTPS page in a modern browser.');
+     const start=await fetch('/api/challenge?asset='+encodeURIComponent(assetId),{cache:'no-store'});
+     const challenge=await start.json();
+     if(!start.ok)throw new Error(challenge.error||'Could not start verification.');
+     let answer=0,found=false;
+     while(answer<5000000){
+       const candidate=answer.toString(36);
+       const hash=new Uint8Array(await crypto.subtle.digest('SHA-256',encoder.encode(challenge.nonce+':'+candidate)));
+       if(digestHasZeroBits(hash,challenge.bits)){found=true;break;}
+       answer++;
+       if(answer%256===0){setStatus('Checking browser… '+answer.toLocaleString()+' attempts');await wait();}
+     }
+     if(!found)throw new Error('The browser challenge could not be completed.');
+     setStatus('Verification passed. Preparing download…');
+     const response=await fetch('/api/verify',{
+       method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({assetId,challengeId:challenge.challengeId,answer:answer.toString(36)})
+     });
+     const result=await response.json();
+     if(!response.ok)throw new Error(result.error||'Verification was rejected.');
+     location.assign(result.downloadUrl);
+   }catch(error){setStatus(error.message||'Verification failed.');button.disabled=false;}
+ }
+ try{
+   const response=await fetch('/api/assets',{cache:'no-store'});
+   const files=await response.json();
+   if(!response.ok)throw new Error(files.error||'Could not load the download list.');
+   filesBox.replaceChildren();
+   for(const file of files){
+     const card=document.createElement('div');card.className='asset';
+     const title=document.createElement('strong');title.textContent=file.label;
+     const detail=document.createElement('p');detail.className='muted';
+     detail.textContent=file.filename+' · '+Number(file.size).toLocaleString('en-US')+' bytes';
+     const button=document.createElement('button');button.className='button';button.textContent='Verify and download';
+     button.addEventListener('click',()=>verifyAndDownload(file.id,button));
+     card.append(title,detail,button);filesBox.append(card);
+   }
+ }catch(error){filesBox.textContent=error.message||'The download list is unavailable.';}
+})();
+</script>
+</body>
+</html>
