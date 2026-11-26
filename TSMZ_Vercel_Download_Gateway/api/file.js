@@ -21,8 +21,7 @@ function contentDisposition(filename) {
   return 'attachment; filename="' + fallback + '"; filename*=UTF-8\'\'' + encodeURIComponent(filename);
 }
 
-async function streamPrivateBlob(res, asset) {
-  const blob = await get(asset.pathname, { access: "private" });
+async function streamPrivateBlob(res, asset, blob) {
   if (!blob || blob.statusCode !== 200 || !blob.stream) return false;
 
   setSecurityHeaders(res);
@@ -55,7 +54,8 @@ export default async function handler(req, res) {
       }
       const count = Number(await redis().incr("download:session-requests:" + cookie));
       if (count > MAX_SESSION_REQUESTS) return sendError(res, 429, "Download session request limit reached.");
-      return await streamPrivateBlob(res, asset)
+      const blob = await get(asset.pathname, { access: "private" });
+      return await streamPrivateBlob(res, asset, blob)
         ? undefined
         : sendError(res, 404, "The private file is not available.");
     }
@@ -94,7 +94,7 @@ export default async function handler(req, res) {
     res.setHeader("Set-Cookie",
       "tsmz_dl=" + sessionId + "; Max-Age=" + SESSION_TTL_SECONDS +
       "; Path=/api/file; HttpOnly; Secure; SameSite=Lax");
-    return streamPrivateBlob(res, asset)
+    return streamPrivateBlob(res, asset, blob)
       ? undefined
       : sendError(res, 404, "The private file is not available.");
   } catch (error) {
