@@ -1,4 +1,4 @@
-import { ASSETS, sendJson } from "../lib/security.js";
+import { ASSETS, sendError, sendJson } from "../lib/security.js";
 
 export default function handler(req, res) {
   if (req.method !== "GET") return sendError(res, 405, "Method not allowed.");
