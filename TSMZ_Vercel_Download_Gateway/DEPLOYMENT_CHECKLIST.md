@@ -9,7 +9,8 @@
 - [ ] Create a **Private** Vercel Blob store and connect it to the project.
 - [ ] Add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`.
 - [ ] Add a fresh `TOKEN_HMAC_SECRET` of at least 32 bytes.
-- [ ] Deploy the Vercel project.
+- [ ] Keep Fluid Compute enabled (default for new Vercel projects).
+- [ ] Deploy the Vercel project and confirm the API functions use the configured 300-second maximum duration.
 
 ## Asset migration
 - [ ] Run `npm install` locally.
