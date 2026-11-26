@@ -1,0 +1,24 @@
+name = "tsmz-download-gatekeeper"
+main = "worker.js"
+compatibility_date = "2026-11-26"
+workers_dev = false
+
+[vars]
+ALLOWED_HOSTNAME = "downloads.example.com"
+ASSETS_JSON = '{"crash-package":{"label":"Crash Fix Package","key":"protected/Crash.rar","filename":"Crash.rar","contentType":"application/vnd.rar"},"hook-package":{"label":"Hook Compatibility Package","key":"protected/Hook.zip","filename":"Hook.zip","contentType":"application/zip"},"note-3":{"label":"Security Assessment Note","key":"protected/Note 3.jpg","filename":"Note 3.jpg","contentType":"image/jpeg"},"proof-video":{"label":"Proof Video","key":"protected/Proof Video.rar","filename":"Proof Video.rar","contentType":"application/vnd.rar"},"scanner-package":{"label":"Scanner Package","key":"protected/Scanner.rar","filename":"Scanner.rar","contentType":"application/vnd.rar"},"systems-package":{"label":"Systems Package","key":"protected/Systems.zip","filename":"Systems.zip","contentType":"application/zip"},"4k-render-tool":{"label":"The Amazing Spider-Man 2 - 4K Render Tool","key":"protected/The Amazing Spider-Man 2 - 4K Render Tool.rar","filename":"The Amazing Spider-Man 2 - 4K Render Tool.rar","contentType":"application/vnd.rar"}}'
+TURNSTILE_SITEKEY = "REPLACE_WITH_TURNSTILE_SITEKEY"
+
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "tsmz-private-downloads"
+
+[[durable_objects.bindings]]
+name = "SENTINEL"
+class_name = "DownloadSentinel"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["DownloadSentinel"]
+
+[observability]
+enabled = true
