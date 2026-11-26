@@ -1,0 +1,17 @@
+{
+  "name": "tsmz-vercel-private-download-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "node --check api/assets.js && node --check api/challenge.js && node --check api/verify.js && node --check api/file.js && node --check lib/security.js && node --check scripts/migrate-assets.mjs",
+    "migrate:assets": "node --env-file=.env.local scripts/migrate-assets.mjs"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.41.1",
+    "@vercel/blob": "^2.9.0"
+  }
+}
