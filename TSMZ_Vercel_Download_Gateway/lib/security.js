@@ -44,10 +44,6 @@ export function randomId(bytes = 18) {
   return crypto.randomBytes(bytes).toString("base64url");
 }
 
-export function sha256Hex(value) {
-  return crypto.createHash("sha256").update(value).digest("hex");
-}
-
 export function proofIsValid(nonce, answer, bits) {
   if (!/^[a-z0-9]{1,32}$/.test(answer)) return false;
   const digest = crypto.createHash("sha256").update(nonce + ":" + answer).digest();
@@ -131,16 +127,6 @@ function normalizeRateResult(result) {
   };
 }
 
-export async function consumeRedisValue(key) {
-  const script = `
-local value = redis.call('GET', KEYS[1])
-if not value then return false end
-redis.call('DEL', KEYS[1])
-return value
-`;
-  return redis().eval(script, [key], []);
-}
-
 export async function takeSlidingLimit(key, limit, windowMs) {
   const result = await redis().eval(SLIDING_WINDOW_LUA, [key], [
     windowMs, limit, randomId(12)
@@ -156,22 +142,6 @@ export async function redeemDownloadSlot({ ipHash, nonce }) {
     20_000, 3, 120_000, nonce
   ]);
   return normalizeRateResult(result);
-}
-
-export function parseCookies(req) {
-  const result = {};
-  const raw = req.headers.cookie || "";
-  for (const part of raw.split(";")) {
-    const index = part.indexOf("=");
-    if (index > 0) result[part.slice(0, index).trim()] = decodeURIComponent(part.slice(index + 1).trim());
-  }
-  return result;
-}
-
-export function parseStoredJson(value) {
-  if (!value) return null;
-  if (typeof value === "object") return value;
-  try { return JSON.parse(value); } catch { return null; }
 }
 
 export function sendJson(res, status, payload, extraHeaders = {}) {
