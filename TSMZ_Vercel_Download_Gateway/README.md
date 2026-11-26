@@ -107,7 +107,7 @@ Do not claim full protection while public direct copies remain available. No fil
 
 ## Operational limits
 
-- Vercel Hobby functions can time out; this gateway configures a 60-second function duration. Very slow or interrupted downloads may need to be restarted.
+- Vercel Hobby functions can time out; this gateway configures a 300-second maximum and relies on Fluid Compute, which is enabled by default for new projects. Keep Fluid Compute enabled. If it is disabled, the Hobby maximum duration is lower. Very slow or interrupted downloads may still need to be restarted, and each restart consumes another slot.
 - Private Blob delivery consumes both Blob transfer and function response transfer.
 - The free service has no uptime SLA and can pause at its usage limits.
 - A proof-of-work challenge is not a CAPTCHA and does not stop all bots.
