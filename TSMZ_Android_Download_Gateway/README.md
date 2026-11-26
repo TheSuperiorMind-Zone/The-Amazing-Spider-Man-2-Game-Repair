@@ -62,8 +62,10 @@ Keep both Termux sessions running. If either process stops, the public gateway s
 
 The phone normally cannot accept unsolicited inbound connections over mobile data because carrier NAT/CGNAT blocks them. The SSH reverse tunnel avoids requiring an inbound port-forward on the phone or carrier network.
 
-- `localhost.run`: free random HTTPS tunnel without an account; its free hostnames change regularly and are speed-limited. Keep the SSH connection open. First-time SSH host fingerprints should be verified against the provider's security documentation.
-- `tunnl.gg`: random HTTPS URL without an account; documented fair-use allowance is 5 GB/day, with a two-hour idle timeout and 24-hour maximum session. Browsers may show a provider warning page. A free account is needed only for a stable URL tied to an SSH key.
+- `localhost.run`: free random HTTPS tunnel without an account; its free hostnames change regularly and are speed-limited. Keep the SSH connection open. Its current ED25519 host fingerprint is `SHA256:pG6qrBxubYfWa1Zadu/V0NUgjEDiBds/7e2xzte/QNM`; the script asks OpenSSH to validate the DNSSEC SSHFP record when supported.
+- `tunnl.gg`: random HTTPS URL without an account; documented fair-use allowance is 5 GB/day, with a two-hour idle timeout and 24-hour maximum session. Browsers may show a provider warning page. A free account is needed only for a stable URL tied to an SSH key. Its current ED25519 host fingerprint is `SHA256:5uQ6VobmUpY4wyMmm5jnAwFtt3aX06WYDDM4ER+2WUw`; compare it with the first-connection SSH prompt.
+
+The gateway trusts the selected tunnel provider to supply a genuine visitor `X-Forwarded-For` header. Do not expose the phone's local server through an unrelated proxy without revisiting that trust boundary.
 
 Both tunnel providers terminate HTTPS at their edge before forwarding requests through the SSH tunnel to the phone. Treat them as third-party intermediaries that can process request metadata and unencrypted HTTP content at their edge. Do not put private credentials or unrelated files on this gateway.
 
