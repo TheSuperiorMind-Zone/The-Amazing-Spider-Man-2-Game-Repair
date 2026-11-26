@@ -115,9 +115,8 @@ if count >= limit then
   if first[2] then retry = math.max(1, window - (now - tonumber(first[2]))) end
   return {0, count, retry}
 end
+-- Consume one signed link and one per-IP download slot in the same atomic operation.
 redis.call('SET', KEYS[2], '1', 'PX', tonumber(ARGV[3]))
-redis.call('SET', KEYS[3], ARGV[5], 'EX', tonumber(ARGV[6]))
-redis.call('SET', KEYS[4], '1', 'EX', tonumber(ARGV[6]))
 redis.call('ZADD', KEYS[1], now, ARGV[4])
 redis.call('PEXPIRE', KEYS[1], window)
 return {1, count + 1, 0}
@@ -149,14 +148,12 @@ export async function takeSlidingLimit(key, limit, windowMs) {
   return normalizeRateResult(result);
 }
 
-export async function redeemDownloadSlot({ ipHash, nonce, sessionId, sessionValue }) {
+export async function redeemDownloadSlot({ ipHash, nonce }) {
   const result = await redis().eval(REDEEM_DOWNLOAD_LUA, [
     "download:ip:" + ipHash,
-    "download:nonce:" + nonce,
-    "download:session:" + sessionId,
-    "download:session-requests:" + sessionId
+    "download:nonce:" + nonce
   ], [
-    20_000, 3, 120_000, nonce, JSON.stringify(sessionValue), 900
+    20_000, 3, 120_000, nonce
   ]);
   return normalizeRateResult(result);
 }
