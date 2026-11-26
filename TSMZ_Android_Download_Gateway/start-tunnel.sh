@@ -17,12 +17,14 @@ MENU
 read -r -p "Choose a tunnel provider: " choice
 case "$choice" in
   1)
-    echo "Connecting to localhost.run. Verify the SSH host fingerprint before accepting it."
-    exec ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R "80:127.0.0.1:${PORT}" nokey@localhost.run
+    echo "localhost.run ED25519 host fingerprint: SHA256:pG6qrBxubYfWa1Zadu/V0NUgjEDiBds/7e2xzte/QNM"
+    echo "OpenSSH will check the DNSSEC SSHFP record when your resolver supports it; otherwise compare the prompt manually."
+    exec ssh -o VerifyHostKeyDNS=yes -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R "80:127.0.0.1:${PORT}" nokey@localhost.run
     ;;
   2)
-    echo "Connecting to tunnl.gg. A random public HTTPS URL will be printed by the provider."
-    exec ssh -t -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R "80:127.0.0.1:${PORT}" proxy.tunnl.gg
+    echo "tunnl.gg ED25519 host fingerprint: SHA256:5uQ6VobmUpY4wyMmm5jnAwFtt3aX06WYDDM4ER+2WUw"
+    echo "Compare the SSH fingerprint prompt with the value above before accepting it."
+    exec ssh -t -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R "80:127.0.0.1:${PORT}" proxy.tunnl.gg
     ;;
   0)
     echo "Cancelled."
