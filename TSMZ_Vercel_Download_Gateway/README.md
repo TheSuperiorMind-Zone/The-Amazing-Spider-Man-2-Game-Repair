@@ -25,7 +25,7 @@ The proof-of-work challenge raises the cost of automated requests but is not a h
 ## Services and free-tier suitability
 
 - Vercel Hobby: serverless functions and static hosting. No phone, VPS process, or 24/7 SSH session must be kept alive. Hobby is intended for personal, non-commercial use and pauses when free usage limits are exceeded.
-- Vercel Blob private store (currently documented as Beta): 1 GB included storage and the first 10 GB of Blob transfer on Hobby. Private objects are streamed through authenticated Functions and their delivery also consumes function/CDN transfer. The seven source files total about 28.7 MB, so they fit comfortably in the included storage. Vercel recommends keeping private-storage delivery for files below 100 MB when traffic is low.
+- Vercel Blob private store: 1 GB included storage and the first 10 GB of Blob transfer on Hobby. Private objects are streamed through authenticated Functions and their delivery also consumes function/CDN transfer. The seven source files total about 28.7 MB, so they fit comfortably in the included storage. Vercel recommends keeping private-storage delivery for files below 100 MB when traffic is low.
 - Upstash Redis Free: 250 MB data, 500,000 commands per month, and 10 GB monthly bandwidth.
 
 These are usage allowances, not an uptime SLA or an unlimited-download guarantee. When free quotas are exceeded, access may pause until the quota resets or the plan changes. Check the current dashboard limits before public launch.
@@ -35,9 +35,8 @@ These are usage allowances, not an uptime SLA or an unlimited-download guarantee
 ### 1. Create the two free accounts
 
 1. Create a Vercel account at https://vercel.com/signup and connect the authorised GitHub account.
-2. Create an Upstash account at https://upstash.com/ and create a Redis database. Select a nearby region if available.
-3. On Vercel, import this repository and set the **Root Directory** to `TSMZ_Vercel_Download_Gateway`.
-4. Deploy the project once. This creates its Vercel HTTPS URL.
+2. On Vercel, import this repository and set the **Root Directory** to `TSMZ_Vercel_Download_Gateway`.
+3. Deploy the project once. This creates its Vercel HTTPS URL.
 
 ### 2. Add private Blob storage
 
@@ -46,8 +45,9 @@ These are usage allowances, not an uptime SLA or an unlimited-download guarantee
 
 ### 3. Connect Upstash Redis
 
-1. Connect the Upstash database to the Vercel project using the Upstash integration, or add its REST credentials as project environment variables.
-2. The required variables are `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`.
+1. In the Vercel project Storage/Marketplace area, add the **Upstash Redis** integration. You can connect an existing Upstash account or have Vercel guide you through creating one and a Redis database.
+2. Select the Free plan and a nearby region where available, then connect the Redis database to this project.
+3. Confirm the required environment variables `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` have been created.
 
 ### 4. Set the signing secret
 
