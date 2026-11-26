@@ -2,7 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { put } from "@vercel/blob";
+import { get, put } from "@vercel/blob";
+import { Readable } from "node:stream";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_DIR = path.resolve(HERE, "..");
@@ -37,6 +38,24 @@ for (const asset of assets) {
   if (uploaded.pathname !== asset.pathname) {
     throw new Error("Unexpected private Blob pathname for " + asset.filename);
   }
-  console.log("PASS", asset.filename, bytes.length, actual, "-> private Blob", uploaded.pathname);
+
+  // Read the private object back through the authenticated SDK and verify the
+  // complete stored bytes. This costs one small verification read per asset.
+  const stored = await get(asset.pathname, { access: "private", token });
+  if (!stored || stored.statusCode !== 200 || !stored.stream) {
+    throw new Error("Private Blob read-back failed for " + asset.filename);
+  }
+  const verifyHash = crypto.createHash("sha1");
+  let verifySize = 0;
+  for await (const chunk of Readable.fromWeb(stored.stream)) {
+    verifyHash.update(chunk);
+    verifySize += chunk.length;
+  }
+  const storedHash = verifyHash.digest("hex");
+  if (verifySize !== asset.size || storedHash !== asset.gitBlobSha1) {
+    throw new Error("Private Blob integrity check failed for " + asset.filename +
+      ": size=" + verifySize + ", gitBlobSha1=" + storedHash);
+  }
+  console.log("PASS", asset.filename, verifySize, storedHash, "-> private Blob", uploaded.pathname);
 }
 console.log("All seven existing files were uploaded to private Vercel Blob and verified before upload.");
