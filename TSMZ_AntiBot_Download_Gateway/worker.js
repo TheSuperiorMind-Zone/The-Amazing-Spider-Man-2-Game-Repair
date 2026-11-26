@@ -43,7 +43,8 @@ export class DownloadSentinel {
   async fetch(request) {
     if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
     const input = await request.json().catch(() => null);
-    if (!input || input.op !== "check" || typeof input.nonce !== "string") {
+    if (!input || !["attempt", "redeem"].includes(input.op) ||
+        (input.op === "redeem" && (typeof input.nonce !== "string" || !input.nonce))) {
       return new Response("Bad request", { status: 400 });
     }
     const now = Date.now();
@@ -53,16 +54,19 @@ export class DownloadSentinel {
         ? old : { attempts: [], used: [] };
       s.attempts = s.attempts.filter(t => Number.isFinite(t) && t > now - WINDOW);
       s.used = s.used.filter(x => x && typeof x.nonce === "string" && x.exp > now);
-      if (s.attempts.length >= LIMIT) {
-        await tx.put("state", s);
-        return { allowed: false, reason: "rate-limit" };
+      if (input.op === "attempt") {
+        if (s.attempts.length >= LIMIT) {
+          await tx.put("state", s);
+          return { allowed: false, reason: "rate-limit" };
+        }
+        s.attempts.push(now);
+      } else {
+        if (s.used.some(x => x.nonce === input.nonce)) {
+          await tx.put("state", s);
+          return { allowed: false, reason: "replay" };
+        }
+        s.used.push({ nonce: input.nonce, exp: now + TTL * 1000 });
       }
-      s.attempts.push(now);
-      if (input.nonce && s.used.some(x => x.nonce === input.nonce)) {
-        await tx.put("state", s);
-        return { allowed: false, reason: "replay" };
-      }
-      if (input.nonce) s.used.push({ nonce: input.nonce, exp: now + TTL * 1000 });
       await tx.put("state", s);
       return { allowed: true };
     });
@@ -79,7 +83,7 @@ async function verify(request, env, assets) {
   if (!assets[id] || !responseToken || responseToken.length > 2048) {
     return html(message("Verification failed", "Return to the download page and try again."), 400);
   }
-  const rate = await checkRate(env, ip, "");
+  const rate = await checkRate(env, ip, "attempt", "");
   if (!rate.allowed) return html(message("Too many attempts", "Please wait before trying again."), 429);
 
   const body = new FormData();
@@ -123,7 +127,7 @@ async function deliver(request, env, assets) {
   if (!same(payload.ipTag || "", ipTag)) {
     return html(message("Download link not valid", "This link belongs to a different connection. Verify again."), 403);
   }
-  const rate = await checkRate(env, ip, payload.nonce);
+  const rate = await checkRate(env, ip, "redeem", payload.nonce);
   if (!rate.allowed) {
     return html(message("Download blocked", rate.reason === "replay"
       ? "This link has already been used. Verify again for a new link."
@@ -139,13 +143,13 @@ async function deliver(request, env, assets) {
   return new Response(object.body, { status: 200, headers });
 }
 
-async function checkRate(env, ip, nonce) {
+async function checkRate(env, ip, op, nonce) {
   const key = await sha256(ip);
   const id = env.SENTINEL.idFromName(key);
   const stub = env.SENTINEL.get(id);
   const res = await stub.fetch("https://sentinel/check", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ op: "check", nonce: nonce || "" })
+    body: JSON.stringify({ op, nonce: nonce || "" })
   });
   const data = await res.json().catch(() => ({}));
   return { allowed: res.ok && data.allowed === true, reason: data.reason || "rate-limit" };
