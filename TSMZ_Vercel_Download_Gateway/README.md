@@ -59,7 +59,7 @@ Add the result to Vercel as `TOKEN_HMAC_SECRET`. Never commit the secret or send
 
 ### 5. Upload the seven existing files to private storage
 
-The upload script reads the original files from the repository root, verifies each exact byte count and Git blob SHA-1, then uploads to private Blob storage.
+The upload script reads the original files from the repository root, verifies each exact byte count and Git blob SHA-1 before upload, then reads each private Blob back through the authenticated SDK and checks its full size and Git blob SHA-1 again.
 
 On a computer or in Termux with Node.js:
 ```sh
