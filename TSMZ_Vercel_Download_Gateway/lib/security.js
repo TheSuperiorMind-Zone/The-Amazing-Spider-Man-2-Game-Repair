@@ -132,6 +132,16 @@ function normalizeRateResult(result) {
   };
 }
 
+export async function consumeRedisValue(key) {
+  const script = `
+local value = redis.call('GET', KEYS[1])
+if not value then return false end
+redis.call('DEL', KEYS[1])
+return value
+`;
+  return redis().eval(script, [key], []);
+}
+
 export async function takeSlidingLimit(key, limit, windowMs) {
   const result = await redis().eval(SLIDING_WINDOW_LUA, [key], [
     windowMs, limit, randomId(12)
