@@ -1,6 +1,6 @@
 import {
   ASSET_MAP, clientIp, hashIp, proofIsValid, randomId, redis,
-  sendError, sendJson, signDownload, takeSlidingLimit, parseStoredJson
+  sendError, sendJson, signDownload, takeSlidingLimit, parseStoredJson, consumeRedisValue
 } from "../lib/security.js";
 
 const LIMIT = 12;
@@ -23,12 +23,11 @@ export default async function handler(req, res) {
     if (!limit.allowed) return sendError(res, 429, "Verification limit reached. Wait before trying again.", limit.retryMs);
 
     const key = "challenge:" + challengeId;
-    const challenge = parseStoredJson(await redis().get(key));
+    const challenge = parseStoredJson(await consumeRedisValue(key));
     if (!challenge || challenge.assetId !== assetId || challenge.ipHash !== ipHash ||
         challenge.exp < Date.now() || !proofIsValid(challenge.nonce, answer, challenge.bits)) {
       return sendError(res, 403, "Verification failed or expired. Return to the download page and try again.");
     }
-    await redis().del(key);
 
     const token = signDownload({
       v: 1,
