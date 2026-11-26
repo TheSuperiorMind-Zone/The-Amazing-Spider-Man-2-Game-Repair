@@ -4,10 +4,12 @@
 
 **Status: PREPARED — NOT ACTIVE.**
 
-A separate Cloudflare Turnstile + private R2 download gateway has been added under `TSMZ_AntiBot_Download_Gateway/`.
+An independent Android/Termux download gateway has been prepared under `TSMZ_Android_Download_Gateway/`. It is designed to run on the owner's OPPO A54 using Node.js and an outbound SSH reverse tunnel. A Cloudflare account is not required by this implementation.
 
-The repository remains public and the current downloadable files are still present. GitHub downloads, raw URLs, Git clones, archives, and old commit references can bypass a gateway until files are migrated to private R2 and retired from public GitHub storage/history.
+The repository and all seven downloadable files remain public. GitHub raw links, Git clone, repository ZIPs, blob URLs, old commit references, and forks can still bypass the phone gateway. The phone-side service has not been installed, publicly exposed, or tested from a second device.
 
-No existing project archives, notes, game files, or source files were modified or deleted.
+The earlier `TSMZ_AntiBot_Download_Gateway/` Cloudflare Worker remains source-only and is not deployed. It is not required for the Android route.
 
-Activation requires a Cloudflare deployment, private R2 uploads and hash checks, full security tests, a planned GitHub binary/history cutover, and replacement of public download links. Do not describe downloads as protected until those steps are complete.
+No original project archives, notes, game files, or game source files have been modified or deleted. The Android installer is designed to copy the seven existing files into Termux private storage and verify their exact byte counts and Git blob SHA-1 values before the server starts.
+
+Activation requires successful installation on the OPPO A54, successful local verification, a working public HTTPS tunnel, complete download tests from a separate device/network, and a separately approved GitHub binary/history cutover. Do not describe the downloads as protected until the direct public copies have been retired and bypass paths reviewed.
