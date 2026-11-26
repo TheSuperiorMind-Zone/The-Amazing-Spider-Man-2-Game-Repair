@@ -10,4 +10,5 @@ The project does **not** promise that every issue is fixed on every PC. Hardware
 The Amazing Spider-Man 2, assets, and related trademarks belong to their respective rights holders. This is an independent community repair project and is not affiliated with or endorsed by Activision, Beenox, Marvel, or any other rights holder. Do not upload or redistribute the complete game or copyrighted game assets through this repository.
 
 \=> You are not permitted to use the project's source code to create anything. Anywhere!
+
 © Copyright this library by The Superior Mind-Zone.
