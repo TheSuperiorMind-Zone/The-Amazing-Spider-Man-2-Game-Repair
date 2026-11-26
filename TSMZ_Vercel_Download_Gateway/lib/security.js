@@ -77,6 +77,7 @@ export function readDownloadToken(token) {
 }
 
 const SLIDING_WINDOW_LUA = `
+redis.replicate_commands()
 local clock = redis.call('TIME')
 local now = tonumber(clock[1]) * 1000 + math.floor(tonumber(clock[2]) / 1000)
 local window = tonumber(ARGV[1])
@@ -96,6 +97,7 @@ return {1, count + 1, 0}
 `;
 
 const REDEEM_DOWNLOAD_LUA = `
+redis.replicate_commands()
 if redis.call('EXISTS', KEYS[2]) == 1 then
   return {-1, 0, 0}
 end
