@@ -58,4 +58,4 @@ for (const asset of assets) {
   }
   console.log("PASS", asset.filename, verifySize, storedHash, "-> private Blob", uploaded.pathname);
 }
-console.log("All seven existing files were uploaded to private Vercel Blob and verified before upload.");
+console.log("All seven existing files were uploaded to private Vercel Blob and read back with matching size and Git blob SHA-1.");
