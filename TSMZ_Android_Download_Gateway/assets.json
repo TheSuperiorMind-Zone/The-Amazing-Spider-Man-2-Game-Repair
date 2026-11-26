@@ -1,0 +1,58 @@
+[
+  {
+    "id": "crash-package",
+    "label": "Crash Package",
+    "filename": "Crash.rar",
+    "size": 845621,
+    "gitBlobSha1": "eff0fe00160f20db0c1d13ee618acfa18cd4b4bb",
+    "contentType": "application/octet-stream"
+  },
+  {
+    "id": "hook-package",
+    "label": "Hook Package",
+    "filename": "Hook.zip",
+    "size": 382455,
+    "gitBlobSha1": "d92cc5c9bf86b9af3f6e2deaee50002a03c70643",
+    "contentType": "application/zip"
+  },
+  {
+    "id": "note-3",
+    "label": "Note 3",
+    "filename": "Note 3.jpg",
+    "size": 871769,
+    "gitBlobSha1": "79a3f634f9628fe88eb49580da18c5312b14e65b",
+    "contentType": "image/jpeg"
+  },
+  {
+    "id": "proof-video",
+    "label": "Proof Video Package",
+    "filename": "Proof Video.rar",
+    "size": 19598218,
+    "gitBlobSha1": "6a0a40110ed566832fb26937029211eecf12934c",
+    "contentType": "application/octet-stream"
+  },
+  {
+    "id": "scanner-package",
+    "label": "Scanner Package",
+    "filename": "Scanner.rar",
+    "size": 1230157,
+    "gitBlobSha1": "a68c52fb451ee266e3e587859e60cb209fe9efea",
+    "contentType": "application/octet-stream"
+  },
+  {
+    "id": "systems-package",
+    "label": "Systems Package",
+    "filename": "Systems.zip",
+    "size": 1534584,
+    "gitBlobSha1": "2a43f6ac4426aabe9cde0f855970ffa6dacbdbf6",
+    "contentType": "application/zip"
+  },
+  {
+    "id": "render-tool",
+    "label": "The Amazing Spider-Man 2 - 4K Render Tool",
+    "filename": "The Amazing Spider-Man 2 - 4K Render Tool.rar",
+    "size": 4222601,
+    "gitBlobSha1": "9b7796c750c3bad02c3342b3434e337b84404e8b",
+    "contentType": "application/octet-stream"
+  }
+]
