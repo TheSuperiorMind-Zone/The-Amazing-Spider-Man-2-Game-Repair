@@ -16,7 +16,7 @@ The code is prepared in this directory, but it is not deployed or connected to V
 - Verification attempts have a separate limit of 12 per IP in a rolling 10-minute window.
 - A successful browser proof-of-work challenge produces a signed HMAC link valid for 120 seconds and bound to the verified IP.
 - Each signed link is single-use and starts exactly one transfer. Retrying or restarting requires a new verification and consumes another download slot; the initial implementation deliberately does not support HTTP Range/resume.
-- Rate-limit and session data are shared in Redis, so serverless cold starts and parallel function instances do not reset the policy.
+- Rate-limit state is shared in Redis, so serverless cold starts and parallel function instances do not reset the policy.
 - The seven assets are read only from private Vercel Blob storage. No public Blob URL is emitted.
 - Raw client IPs are not stored. A keyed HMAC digest is used as the Redis key.
 
@@ -25,7 +25,7 @@ The proof-of-work challenge raises the cost of automated requests but is not a h
 ## Services and free-tier suitability
 
 - Vercel Hobby: serverless functions and static hosting. No phone, VPS process, or 24/7 SSH session must be kept alive. Hobby is intended for personal, non-commercial use and pauses when free usage limits are exceeded.
-- Vercel Blob private store: 1 GB included storage and 10 GB included Blob transfer on Hobby. The seven source files total about 28.7 MB, so they fit comfortably in the included storage.
+- Vercel Blob private store (currently documented as Beta): 1 GB included storage and the first 10 GB of Blob transfer on Hobby. Private objects are streamed through authenticated Functions and their delivery also consumes function/CDN transfer. The seven source files total about 28.7 MB, so they fit comfortably in the included storage. Vercel recommends keeping private-storage delivery for files below 100 MB when traffic is low.
 - Upstash Redis Free: 250 MB data, 500,000 commands per month, and 10 GB monthly bandwidth.
 
 These are usage allowances, not an uptime SLA or an unlimited-download guarantee. When free quotas are exceeded, access may pause until the quota resets or the plan changes. Check the current dashboard limits before public launch.
