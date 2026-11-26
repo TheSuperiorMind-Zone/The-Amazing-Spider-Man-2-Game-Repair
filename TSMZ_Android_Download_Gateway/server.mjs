@@ -75,8 +75,6 @@ const usedNonces = new Map();
 const sessions = new Map();
 const challengeRateBuckets = new Map();
 const verifyRateBuckets = new Map();
-teBuckets = new Map();
-const verifyRateBuckets = new Map();
 
 function b64url(value) { return Buffer.from(value).toString('base64url'); }
 function safeEqual(a, b) {
