@@ -15,7 +15,7 @@ The code is prepared in this directory, but it is not deployed or connected to V
 - The limit uses an atomic Upstash Redis Lua transaction, so simultaneous requests cannot race past the cap.
 - Verification attempts have a separate limit of 12 per IP in a rolling 10-minute window.
 - A successful browser proof-of-work challenge produces a signed HMAC link valid for 120 seconds and bound to the verified IP.
-- The link is single-use. A short-lived HttpOnly session cookie permits the same browser to retry the download without consuming another download slot.
+- Each signed link is single-use and starts exactly one transfer. Retrying or restarting requires a new verification and consumes another download slot; the initial implementation deliberately does not support HTTP Range/resume.
 - Rate-limit and session data are shared in Redis, so serverless cold starts and parallel function instances do not reset the policy.
 - The seven assets are read only from private Vercel Blob storage. No public Blob URL is emitted.
 - Raw client IPs are not stored. A keyed HMAC digest is used as the Redis key.
